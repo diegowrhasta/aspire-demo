@@ -1,0 +1,6 @@
+@MssqlProbe.ApiService_HostAddress = http://localhost:5133
+
+GET {{MssqlProbe.ApiService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
