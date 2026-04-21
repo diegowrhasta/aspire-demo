@@ -10,7 +10,10 @@ var sqlProbe = builder
 var apiService = builder
     .AddProject<Projects.AspireApp1_ApiService>("apiservice")
     .WithHttpHealthCheck("/health")
-    .WithReference(sqlProbe);
+    .WithReference(sqlProbe)
+    .WithEnvironment(
+        "ConnectionStrings__SqlServer",
+        "Server=localhost,1433;Database=AdventureWorks2025;User Id=sa;Password=Passw0rd;TrustServerCertificate=True;");
 
 builder.AddProject<Projects.AspireApp1_Web>("webfrontend")
     .WithExternalHttpEndpoints()

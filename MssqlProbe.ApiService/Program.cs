@@ -2,11 +2,11 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddServiceDefaults();
+builder.AddServiceDefaults(isSqlProbe: true);
 
 builder.Services.AddHealthChecks()
     .AddSqlServer(
-        "Server=localhost,1433;Database=master;User Id=sa;Password=Passw0rd;TrustServerCertificate=True;",
+        builder.Configuration.GetConnectionString("SqlServer") ?? "",
         name: "external-sql",
         failureStatus: HealthStatus.Unhealthy,
         timeout: TimeSpan.FromSeconds(5));
