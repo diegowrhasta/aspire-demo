@@ -8,6 +8,11 @@ builder.Services.AddProblemDetails();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("SqlServer")
+    ));
+
 
 var app = builder.Build();
 
@@ -37,6 +42,15 @@ app.MapGet("/weatherforecast", () =>
         return forecast;
     })
     .WithName("GetWeatherForecast");
+
+app.MapGet("/users", async (AppDbContext db) => await db.Users.ToListAsync());
+
+app.MapPost("/users", async (AppDbContext db, User user) =>
+{
+    db.Users.Add(user);
+    await db.SaveChangesAsync();
+    return Results.Created($"/users/{user.Id}", user);
+});
 
 app.MapDefaultEndpoints();
 
