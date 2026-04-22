@@ -13,7 +13,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         builder.Configuration.GetConnectionString("SqlServer")
     ));
 
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -50,6 +49,21 @@ app.MapPost("/users", async (AppDbContext db, User user) =>
     db.Users.Add(user);
     await db.SaveChangesAsync();
     return Results.Created($"/users/{user.Id}", user);
+});
+
+app.MapGet("/rabbit", async (IConfiguration configuration) =>
+{
+    var connectionString = configuration.GetConnectionString("rabbitmq");
+    
+    var factory = new ConnectionFactory
+    {
+        Uri = new Uri(connectionString!)
+    };
+
+    var connection = await factory.CreateConnectionAsync();
+    var channel = await connection.CreateChannelAsync();
+
+    return Results.Ok(new { Message = "Rabbit Works" });
 });
 
 app.MapDefaultEndpoints();
