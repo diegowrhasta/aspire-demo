@@ -1,6 +1,11 @@
-@MssqlProbe.ApiService_HostAddress = http://localhost:5133
+@MssqlProbe_ApiService_HostAddress = http://localhost:5133
 
-GET {{MssqlProbe.ApiService_HostAddress}}/weatherforecast/
+GET {{MssqlProbe_ApiService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+GET {{MssqlProbe_ApiService_HostAddress}}/health/
 Accept: application/json
 
 ###

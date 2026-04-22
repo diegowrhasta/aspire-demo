@@ -24,3 +24,8 @@ GET {{ApiService_HostAddress}}/rabbit/
 Accept: application/json
 
 ###
+
+GET {{ApiService_HostAddress}}/health/
+Accept: application/json
+
+###
