@@ -62,8 +62,33 @@ app.MapGet("/rabbit", async (IConfiguration configuration) =>
 
     var connection = await factory.CreateConnectionAsync();
     var channel = await connection.CreateChannelAsync();
-
-    return Results.Ok(new { Message = "Rabbit Works" });
+    
+    await channel.QueueDeclareAsync(
+        queue: "task_queue",
+        durable: false,
+        exclusive: false,
+        autoDelete: false
+    );
+    
+    var message = new { Text = "Hello World", Timestamp = DateTime.UtcNow };
+    var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(message));
+    
+    var properties = new BasicProperties
+    {
+        Persistent = false,  // Message survives broker restart
+        ContentType = "application/json",
+        MessageId = Guid.NewGuid().ToString()
+    };
+    
+    await channel.BasicPublishAsync(
+        exchange: "",           // Empty = default exchange
+        routingKey: "task_queue", // Queue name when using default exchange
+        mandatory: true,       // Return if can't route
+        basicProperties: properties,
+        body: body
+    );
+    
+    return Results.Ok(new { Message = "Published successfully" });
 });
 
 app.MapDefaultEndpoints();

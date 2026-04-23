@@ -1,0 +1,11 @@
+@AspireApp1_RabbitConsumer_HostAddress = http://localhost:5074
+
+GET {{AspireApp1_RabbitConsumer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+GET {{AspireApp1_RabbitConsumer_HostAddress}}/message/
+Accept: application/json
+
+###
