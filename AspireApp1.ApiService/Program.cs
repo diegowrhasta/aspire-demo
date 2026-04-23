@@ -1,7 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire client integrations.
-builder.AddServiceDefaults();
+builder.AddServiceDefaults(hasRabbit: true);
 
 // Add services to the container.
 builder.Services.AddProblemDetails();
@@ -53,6 +53,8 @@ app.MapPost("/users", async (AppDbContext db, User user) =>
 
 app.MapGet("/rabbit", async (IConfiguration configuration) =>
 {
+    using var activity = Extensions.MessagingObservability.Source.StartActivity("Publish Message");
+    
     var connectionString = configuration.GetConnectionString("rabbitmq");
     
     var factory = new ConnectionFactory
@@ -77,9 +79,20 @@ app.MapGet("/rabbit", async (IConfiguration configuration) =>
     {
         Persistent = false,  // Message survives broker restart
         ContentType = "application/json",
-        MessageId = Guid.NewGuid().ToString()
+        MessageId = Guid.NewGuid().ToString(),
+        Headers = new Dictionary<string, object>()!
     };
     
+    var propagator = Propagators.DefaultTextMapPropagator;
+    
+    propagator.Inject(
+        new PropagationContext(activity!.Context, Baggage.Current),
+        properties.Headers,
+        (headers, key, value) =>
+        {
+            headers[key] = Encoding.UTF8.GetBytes(value);
+        });
+
     await channel.BasicPublishAsync(
         exchange: "",           // Empty = default exchange
         routingKey: "task_queue", // Queue name when using default exchange

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
+using System.Diagnostics;
 using OpenTelemetry.Trace;
 
 namespace Microsoft.Extensions.Hosting;
@@ -18,6 +19,11 @@ public static class Extensions
 {
     private const string HealthEndpointPath = "/health";
     private const string AlivenessEndpointPath = "/alive";
+
+    public static class MessagingObservability
+    {
+        public static readonly ActivitySource Source = new("Messaging");
+    }
     
     private static Task WriteHealthCheckResponse(HttpContext context, HealthReport report)
     {
@@ -46,9 +52,10 @@ public static class Extensions
         return context.Response.WriteAsync(json);
     }
 
-    public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder, bool isSqlProbe = false) where TBuilder : IHostApplicationBuilder
+    public static TBuilder AddServiceDefaults<TBuilder>(
+        this TBuilder builder, bool isSqlProbe = false, bool hasRabbit = false) where TBuilder : IHostApplicationBuilder
     {
-        builder.ConfigureOpenTelemetry(isSqlProbe);
+        builder.ConfigureOpenTelemetry(isSqlProbe, hasRabbit);
 
         builder.AddDefaultHealthChecks();
 
@@ -72,7 +79,7 @@ public static class Extensions
         return builder;
     }
 
-    public static TBuilder ConfigureOpenTelemetry<TBuilder>(this TBuilder builder, bool isSqlProbe)
+    public static TBuilder ConfigureOpenTelemetry<TBuilder>(this TBuilder builder, bool isSqlProbe, bool hasRabbit)
         where TBuilder : IHostApplicationBuilder
     {
         builder.Logging.AddOpenTelemetry(logging =>
@@ -104,6 +111,11 @@ public static class Extensions
                 if (!isSqlProbe)
                 {
                     tracing.AddSqlClientInstrumentation();
+                }
+
+                if (hasRabbit)
+                {
+                    tracing.AddSource("Messaging");
                 }
             });
 

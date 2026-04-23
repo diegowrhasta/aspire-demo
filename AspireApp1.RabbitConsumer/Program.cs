@@ -1,6 +1,6 @@
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddServiceDefaults();
+builder.AddServiceDefaults(hasRabbit: true);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -61,10 +61,31 @@ app.MapGet("/message", async (IConfiguration configuration) =>
         global: false
     );
     
+    var propagator = Propagators.DefaultTextMapPropagator;
+    
     var consumer = new AsyncEventingBasicConsumer(channel);
     
     consumer.ReceivedAsync += async (sender, args) =>
     {
+        var parentContext = propagator.Extract(
+            default,
+            args.BasicProperties.Headers,
+            (headers, key) =>
+            {
+                if (headers != null && headers.TryGetValue(key, out var value))
+                {
+                    return new[] { Encoding.UTF8.GetString((byte[])value) };
+                }
+                return Enumerable.Empty<string>();
+            });
+
+        Baggage.Current = parentContext.Baggage;
+
+        using var activity = Extensions.MessagingObservability.Source.StartActivity(
+            "Consume Message",
+            ActivityKind.Consumer,
+            parentContext.ActivityContext);
+        
         var body = args.Body.ToArray();
         var message = Encoding.UTF8.GetString(body);
         
