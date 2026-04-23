@@ -5,6 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsAspireSharedProject>true</IsAspireSharedProject>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <ItemGroup>
@@ -18,6 +19,12 @@
         <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.15.0"/>
         <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.0"/>
         <PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.15.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="..\.dockerignore">
+        <Link>.dockerignore</Link>
+      </Content>
     </ItemGroup>
 
 </Project>

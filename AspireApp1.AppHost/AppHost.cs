@@ -24,7 +24,7 @@ var apiService = builder
         "ConnectionStrings__SqlServer",
         "Server=localhost,1433;Database=AdventureWorks2025;User Id=sa;Password=Passw0rd;TrustServerCertificate=True;");
 
-var rabbitConsumer = builder
+builder
     .AddProject<Projects.AspireApp1_RabbitConsumer>("rabbitConsumer")
     .WithHttpHealthCheck("/health")
     .WithReference(rabbit);

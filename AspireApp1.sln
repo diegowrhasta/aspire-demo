@@ -11,6 +11,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{78DE361E-59BB-412C-9D28-ECC7500BC7B9}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
+		compose.yaml = compose.yaml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MssqlProbe.ApiService", "MssqlProbe.ApiService\MssqlProbe.ApiService.csproj", "{9FBFD78B-F548-4A29-AB98-DF40710AD9E0}"

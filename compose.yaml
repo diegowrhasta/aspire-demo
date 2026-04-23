@@ -1,0 +1,64 @@
+﻿services:
+  mssqlprobe.apiservice:
+    image: mssqlprobe.apiservice
+    ports:
+      - "5133:8080"
+      - "7196:8081"
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://aspire-dashboard:18889
+      ConnectionStrings__SqlServer: Server=172.17.0.1,1433;Database=AdventureWorks2025;User Id=sa;Password=Passw0rd;TrustServerCertificate=True;
+    build:
+      context: .
+      dockerfile: MssqlProbe.ApiService/Dockerfile
+  
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: 123456
+  
+  apiservice:
+    image: aspireapp1.apiservice
+    ports:
+      - "5320:8080"
+      - "7505:8081"
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://aspire-dashboard:18889
+      ConnectionStrings__SqlServer: Server=172.17.0.1,1433;Database=AdventureWorks2025;User Id=sa;Password=Passw0rd;TrustServerCertificate=True;
+      ConnectionStrings__rabbitmq: amqp://admin:123456@rabbitmq:5672/
+    build:
+      context: .
+      dockerfile: AspireApp1.ApiService/Dockerfile
+
+  aspireapp1.rabbitconsumer:
+    image: aspireapp1.rabbitconsumer
+    ports:
+      - "5074:8080"
+      - "7193:8081"
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://aspire-dashboard:18889
+      ConnectionStrings__rabbitmq: amqp://admin:123456@rabbitmq:5672/
+    build:
+      context: .
+      dockerfile: AspireApp1.RabbitConsumer/Dockerfile
+
+  aspireapp1.web:
+    image: aspireapp1.web
+    ports:
+      - "5070:8080"
+      - "7132:8081"
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://aspire-dashboard:18889
+    build:
+      context: .
+      dockerfile: AspireApp1.Web/Dockerfile
+
+  aspire-dashboard:
+    image: mcr.microsoft.com/dotnet/aspire-dashboard:latest
+    ports:
+      - "18888:18888" # UI
+      - "18889:18889" # OTLP ingest
