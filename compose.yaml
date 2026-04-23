@@ -7,6 +7,8 @@
     environment:
       OTEL_EXPORTER_OTLP_ENDPOINT: http://aspire-dashboard:18889
       ConnectionStrings__SqlServer: Server=172.17.0.1,1433;Database=AdventureWorks2025;User Id=sa;Password=Passw0rd;TrustServerCertificate=True;
+      OTEL_SERVICE_NAME: mssqlprobe
+      OTEL_RESOURCE_ATTRIBUTES: service.name=mssqlprobe,service.version=1.0.0
     build:
       context: .
       dockerfile: MssqlProbe.ApiService/Dockerfile
@@ -20,6 +22,8 @@
     environment:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: 123456
+      OTEL_SERVICE_NAME: rabbitmq
+      OTEL_RESOURCE_ATTRIBUTES: service.name=rabbitmq,service.version=1.0.0
   
   apiservice:
     image: aspireapp1.apiservice
@@ -30,6 +34,8 @@
       OTEL_EXPORTER_OTLP_ENDPOINT: http://aspire-dashboard:18889
       ConnectionStrings__SqlServer: Server=172.17.0.1,1433;Database=AdventureWorks2025;User Id=sa;Password=Passw0rd;TrustServerCertificate=True;
       ConnectionStrings__rabbitmq: amqp://admin:123456@rabbitmq:5672/
+      OTEL_SERVICE_NAME: apiservice
+      OTEL_RESOURCE_ATTRIBUTES: service.name=apiservice,service.version=1.0.0
     build:
       context: .
       dockerfile: AspireApp1.ApiService/Dockerfile
@@ -42,6 +48,8 @@
     environment:
       OTEL_EXPORTER_OTLP_ENDPOINT: http://aspire-dashboard:18889
       ConnectionStrings__rabbitmq: amqp://admin:123456@rabbitmq:5672/
+      OTEL_SERVICE_NAME: rabbitconsumer
+      OTEL_RESOURCE_ATTRIBUTES: service.name=rabbitconsumer,service.version=1.0.0
     build:
       context: .
       dockerfile: AspireApp1.RabbitConsumer/Dockerfile
@@ -53,6 +61,8 @@
       - "7132:8081"
     environment:
       OTEL_EXPORTER_OTLP_ENDPOINT: http://aspire-dashboard:18889
+      OTEL_SERVICE_NAME: web
+      OTEL_RESOURCE_ATTRIBUTES: service.name=web,service.version=1.0.0
     build:
       context: .
       dockerfile: AspireApp1.Web/Dockerfile

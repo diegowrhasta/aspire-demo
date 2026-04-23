@@ -1,0 +1,99 @@
+services:
+  env-dashboard:
+    image: "mcr.microsoft.com/dotnet/nightly/aspire-dashboard:latest"
+    ports:
+      - "18888"
+    expose:
+      - "18889"
+      - "18890"
+    networks:
+      - "aspire"
+    restart: "always"
+  sql-probe:
+    image: "${SQL_PROBE_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${SQL_PROBE_PORT}"
+      ConnectionStrings__SqlServer: "Server=localhost,1433;Database=AdventureWorks2025;User Id=sa;Password=Passw0rd;TrustServerCertificate=True;"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://env-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "sql-probe"
+    expose:
+      - "${SQL_PROBE_PORT}"
+    networks:
+      - "aspire"
+  rabbitmq:
+    image: "docker.io/library/rabbitmq:4.2-management"
+    environment:
+      RABBITMQ_DEFAULT_USER: "${USERNAME}"
+      RABBITMQ_DEFAULT_PASS: "${PASSWORD}"
+    expose:
+      - "5672"
+      - "15672"
+    networks:
+      - "aspire"
+  apiservice:
+    image: "${APISERVICE_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${APISERVICE_PORT}"
+      SQL_PROBE_HTTP: "http://sql-probe:${SQL_PROBE_PORT}"
+      services__sql-probe__http__0: "http://sql-probe:${SQL_PROBE_PORT}"
+      SQL_PROBE_HTTPS: "https://sql-probe:${SQL_PROBE_PORT}"
+      ConnectionStrings__rabbitmq: "amqp://${USERNAME}:${PASSWORD}@rabbitmq:5672"
+      RABBITMQ_HOST: "rabbitmq"
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USERNAME: "${USERNAME}"
+      RABBITMQ_PASSWORD: "${PASSWORD}"
+      RABBITMQ_URI: "amqp://${USERNAME}:${PASSWORD}@rabbitmq:5672"
+      ConnectionStrings__SqlServer: "Server=localhost,1433;Database=AdventureWorks2025;User Id=sa;Password=Passw0rd;TrustServerCertificate=True;"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://env-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "apiservice"
+    expose:
+      - "${APISERVICE_PORT}"
+    networks:
+      - "aspire"
+  rabbitconsumer:
+    image: "${RABBITCONSUMER_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${RABBITCONSUMER_PORT}"
+      ConnectionStrings__rabbitmq: "amqp://${USERNAME}:${PASSWORD}@rabbitmq:5672"
+      RABBITMQ_HOST: "rabbitmq"
+      RABBITMQ_PORT: "5672"
+      RABBITMQ_USERNAME: "${USERNAME}"
+      RABBITMQ_PASSWORD: "${PASSWORD}"
+      RABBITMQ_URI: "amqp://${USERNAME}:${PASSWORD}@rabbitmq:5672"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://env-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "rabbitConsumer"
+    expose:
+      - "${RABBITCONSUMER_PORT}"
+    networks:
+      - "aspire"
+  webfrontend:
+    image: "${WEBFRONTEND_IMAGE}"
+    environment:
+      OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      HTTP_PORTS: "${WEBFRONTEND_PORT}"
+      APISERVICE_HTTP: "http://apiservice:${APISERVICE_PORT}"
+      services__apiservice__http__0: "http://apiservice:${APISERVICE_PORT}"
+      APISERVICE_HTTPS: "https://apiservice:${APISERVICE_PORT}"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://env-dashboard:18889"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_SERVICE_NAME: "webfrontend"
+    ports:
+      - "${WEBFRONTEND_PORT}"
+    depends_on:
+      apiservice:
+        condition: "service_started"
+    networks:
+      - "aspire"
+networks:
+  aspire:
+    driver: "bridge"

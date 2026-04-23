@@ -1,5 +1,7 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
+builder.AddDockerComposeEnvironment("env");
+
 var sqlProbe = builder
     .AddProject<Projects.MssqlProbe_ApiService>("sql-probe")
     .WithHttpHealthCheck("/health")
