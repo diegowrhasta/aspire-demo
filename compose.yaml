@@ -72,3 +72,11 @@
     ports:
       - "18888:18888" # UI
       - "18889:18889" # OTLP ingest
+  
+  portainer:
+    image: portainer/portainer-ce:latest
+    ports:
+      - "9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
