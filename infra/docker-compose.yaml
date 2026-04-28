@@ -9,7 +9,7 @@ services:
   env-dashboard:
     image: "mcr.microsoft.com/dotnet/nightly/aspire-dashboard:latest"
     ports:
-      - "18888"
+      - "18888:18888"
     expose:
       - "18889"
       - "18890"
@@ -22,7 +22,7 @@ services:
       OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
       HTTP_PORTS: "${SQL_PROBE_PORT}"
-      ConnectionStrings__SqlServer: "Server=localhost,1433;Database=AdventureWorks2025;User Id=sa;Password=Passw0rd;TrustServerCertificate=True;"
+      ConnectionStrings__SqlServer: "Server=172.17.0.1,1433;Database=AdventureWorks2025;User Id=sa;Password=Passw0rd;TrustServerCertificate=True;"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://env-dashboard:18889"
       OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
       OTEL_SERVICE_NAME: "sql-probe"
@@ -33,8 +33,10 @@ services:
   rabbitmq:
     image: "docker.io/library/rabbitmq:4.2-management"
     environment:
-      RABBITMQ_DEFAULT_USER: "${USERNAME}"
-      RABBITMQ_DEFAULT_PASS: "${PASSWORD}"
+      RABBITMQ_DEFAULT_USER: "${RABBIT_USERNAME}"
+      RABBITMQ_DEFAULT_PASS: "${RABBIT_PASSWORD}"
+    ports:
+      - "15672:15672"
     expose:
       - "5672"
       - "15672"
@@ -49,16 +51,19 @@ services:
       SQL_PROBE_HTTP: "http://sql-probe:${SQL_PROBE_PORT}"
       services__sql-probe__http__0: "http://sql-probe:${SQL_PROBE_PORT}"
       SQL_PROBE_HTTPS: "https://sql-probe:${SQL_PROBE_PORT}"
-      ConnectionStrings__rabbitmq: "amqp://${USERNAME}:${PASSWORD}@rabbitmq:5672"
+      ConnectionStrings__rabbitmq: "amqp://${RABBIT_USERNAME}:${RABBIT_PASSWORD}@rabbitmq:5672"
       RABBITMQ_HOST: "rabbitmq"
       RABBITMQ_PORT: "5672"
-      RABBITMQ_USERNAME: "${USERNAME}"
-      RABBITMQ_PASSWORD: "${PASSWORD}"
-      RABBITMQ_URI: "amqp://${USERNAME}:${PASSWORD}@rabbitmq:5672"
-      ConnectionStrings__SqlServer: "Server=localhost,1433;Database=AdventureWorks2025;User Id=sa;Password=Passw0rd;TrustServerCertificate=True;"
+      RABBITMQ_USERNAME: "${RABBIT_USERNAME}"
+      RABBITMQ_PASSWORD: "${RABBIT_PASSWORD}"
+      RABBITMQ_URI: "amqp://${RABBIT_USERNAME}:${RABBIT_PASSWORD}@rabbitmq:5672"
+      ConnectionStrings__SqlServer: "Server=172.17.0.1,1433;Database=AdventureWorks2025;User Id=sa;Password=Passw0rd;TrustServerCertificate=True;"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://env-dashboard:18889"
       OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
       OTEL_SERVICE_NAME: "apiservice"
+    ports:
+      - "5320:8080"
+      - "7196:8081"
     expose:
       - "${APISERVICE_PORT}"
     networks:
@@ -69,15 +74,18 @@ services:
       OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY: "in_memory"
       ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
       HTTP_PORTS: "${RABBITCONSUMER_PORT}"
-      ConnectionStrings__rabbitmq: "amqp://${USERNAME}:${PASSWORD}@rabbitmq:5672"
+      ConnectionStrings__rabbitmq: "amqp://${RABBIT_USERNAME}:${RABBIT_PASSWORD}@rabbitmq:5672"
       RABBITMQ_HOST: "rabbitmq"
       RABBITMQ_PORT: "5672"
-      RABBITMQ_USERNAME: "${USERNAME}"
-      RABBITMQ_PASSWORD: "${PASSWORD}"
-      RABBITMQ_URI: "amqp://${USERNAME}:${PASSWORD}@rabbitmq:5672"
+      RABBITMQ_USERNAME: "${RABBIT_USERNAME}"
+      RABBITMQ_PASSWORD: "${RABBIT_PASSWORD}"
+      RABBITMQ_URI: "amqp://${RABBIT_USERNAME}:${RABBIT_PASSWORD}@rabbitmq:5672"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://env-dashboard:18889"
       OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
       OTEL_SERVICE_NAME: "rabbitConsumer"
+    ports:
+      - "5074:8080"
+      - "7193:8081"
     expose:
       - "${RABBITCONSUMER_PORT}"
     networks:
@@ -95,7 +103,7 @@ services:
       OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
       OTEL_SERVICE_NAME: "webfrontend"
     ports:
-      - "${WEBFRONTEND_PORT}"
+      - "5070:${WEBFRONTEND_PORT}"
     depends_on:
       apiservice:
         condition: "service_started"
