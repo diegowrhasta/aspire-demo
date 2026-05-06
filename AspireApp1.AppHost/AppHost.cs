@@ -31,10 +31,13 @@ builder
     .WithHttpHealthCheck("/health")
     .WithReference(rabbit);
 
-builder.AddProject<Projects.AspireApp1_Web>("webfrontend")
+var web = builder.AddProject<Projects.AspireApp1_Web>("webfrontend")
     .WithExternalHttpEndpoints()
     .WithHttpHealthCheck("/health")
     .WithReference(apiService)
     .WaitFor(apiService);
+
+var tunnel = builder.AddDevTunnel("my-tunnel")
+    .WithReference(web);
 
 builder.Build().Run();
