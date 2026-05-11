@@ -2,6 +2,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire client integrations.
 builder.AddServiceDefaults(hasRabbit: true);
+builder.AddSeqEndpoint("seq");
 
 // Add services to the container.
 builder.Services.AddProblemDetails();

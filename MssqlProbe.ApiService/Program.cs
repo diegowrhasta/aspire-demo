@@ -3,6 +3,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults(isSqlProbe: true);
+builder.AddSeqEndpoint("seq");
 
 builder.Services.AddHealthChecks()
     .AddSqlServer(

@@ -16,6 +16,15 @@ services:
     networks:
       - "aspire"
     restart: "always"
+  seq:
+    image: datalust/seq:latest
+    environment:
+      ACCEPT_EULA: "Y"
+      SEQ_FIRSTRUN_NOAUTHENTICATION: "True"
+    ports:
+      - "5341:80"
+    networks:
+      - "aspire"
   sql-probe:
     image: "${SQL_PROBE_IMAGE}"
     environment:
@@ -25,7 +34,7 @@ services:
       ConnectionStrings__SqlServer: "Server=172.17.0.1,1433;Database=AdventureWorks2025;User Id=sa;Password=Passw0rd;TrustServerCertificate=True;"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://env-dashboard:18889"
       OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
-      OTEL_SERVICE_NAME: "sql-probe"
+      ConnectionStrings__seq: "http://seq:80"
     expose:
       - "${SQL_PROBE_PORT}"
     networks:
@@ -60,7 +69,7 @@ services:
       ConnectionStrings__SqlServer: "Server=172.17.0.1,1433;Database=AdventureWorks2025;User Id=sa;Password=Passw0rd;TrustServerCertificate=True;"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://env-dashboard:18889"
       OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
-      OTEL_SERVICE_NAME: "apiservice"
+      ConnectionStrings__seq: "http://seq:80"
     ports:
       - "5320:8080"
       - "7196:8081"
@@ -82,7 +91,7 @@ services:
       RABBITMQ_URI: "amqp://${RABBIT_USERNAME}:${RABBIT_PASSWORD}@rabbitmq:5672"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://env-dashboard:18889"
       OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
-      OTEL_SERVICE_NAME: "rabbitConsumer"
+      ConnectionStrings__seq: "http://seq:80"
     ports:
       - "5074:8080"
       - "7193:8081"
@@ -101,7 +110,7 @@ services:
       APISERVICE_HTTPS: "https://apiservice:${APISERVICE_PORT}"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://env-dashboard:18889"
       OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
-      OTEL_SERVICE_NAME: "webfrontend"
+      ConnectionStrings__seq: "http://seq:80"
     ports:
       - "5070:${WEBFRONTEND_PORT}"
     depends_on:
