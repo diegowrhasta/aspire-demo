@@ -1,0 +1,24 @@
+# /etc/containers/systemd/env-dashboard.container
+
+[Unit]
+Description=Aspire Dashboard (OTEL)
+PartOf=aspire.target
+
+[Container]
+Image=mcr.microsoft.com/dotnet/nightly/aspire-dashboard:latest
+
+Network=aspire
+
+PublishPort=18888:18888
+ExposeHostPort=18889
+ExposeHostPort=18890
+
+ContainerName=env-dashboard
+
+[Service]
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+

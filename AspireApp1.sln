@@ -21,6 +21,21 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MssqlProbe.ApiService", "Ms
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireApp1.RabbitConsumer", "AspireApp1.RabbitConsumer\AspireApp1.RabbitConsumer.csproj", "{7E2C2720-0D41-4C86-B7D1-AC6C608EDFA6}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Quadlets", "Quadlets", "{089FB1C3-71EF-48B4-9732-AEEF966D00E1}"
+	ProjectSection(SolutionItems) = preProject
+		Quadlets\aspire.target = Quadlets\aspire.target
+		Quadlets\apiservice.container = Quadlets\apiservice.container
+		Quadlets\aspire.env = Quadlets\aspire.env
+		Quadlets\aspire.network = Quadlets\aspire.network
+		Quadlets\env-dashboard.container = Quadlets\env-dashboard.container
+		Quadlets\portainer.container = Quadlets\portainer.container
+		Quadlets\rabbitconsumer.container = Quadlets\rabbitconsumer.container
+		Quadlets\rabbitmq.container = Quadlets\rabbitmq.container
+		Quadlets\seq.container = Quadlets\seq.container
+		Quadlets\sql-probe.container = Quadlets\sql-probe.container
+		Quadlets\webfrontend.container = Quadlets\webfrontend.container
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,5 +68,6 @@ Global
 		{7E2C2720-0D41-4C86-B7D1-AC6C608EDFA6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{089FB1C3-71EF-48B4-9732-AEEF966D00E1} = {78DE361E-59BB-412C-9D28-ECC7500BC7B9}
 	EndGlobalSection
 EndGlobal

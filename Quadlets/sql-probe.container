@@ -1,0 +1,31 @@
+# /etc/containers/systemd/sql-probe.container
+
+[Unit]
+Description=SQL Probe Service
+PartOf=aspire.target
+
+[Container]
+Image=localhost/mssqlprobe.apiservice
+
+Network=aspire
+
+EnvironmentFile=/etc/containers/systemd/aspire.env
+
+Environment=OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY=in_memory
+Environment=ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
+Environment=HTTP_PORTS=8080
+
+Environment=ConnectionStrings__SqlServer=Server=172.17.0.1,1433;Database=AdventureWorks2025;User Id=sa;Password=Passw0rd;TrustServerCertificate=True;
+Environment=OTEL_EXPORTER_OTLP_ENDPOINT=http://env-dashboard:18889
+Environment=OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+Environment=ConnectionStrings__seq=http://seq:80
+
+ContainerName=sql-probe
+
+[Service]
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+

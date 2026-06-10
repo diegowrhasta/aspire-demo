@@ -1,0 +1,20 @@
+# /etc/containers/systemd/seq.container
+
+[Unit]
+Description=Seq
+PartOf=aspire.target
+
+[Container]
+Image=datalust/seq:latest
+PublishPort=5341:80
+Network=aspire
+Environment=ACCEPT_EULA=Y
+Environment=SEQ_FIRSTRUN_NOAUTHENTICATION=True
+ContainerName=seq
+
+[Service]
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

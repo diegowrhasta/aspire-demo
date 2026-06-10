@@ -1,0 +1,5 @@
+# /etc/containers/systemd/aspire.network
+
+[Network]
+NetworkName=aspire
+Driver=bridge

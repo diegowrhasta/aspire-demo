@@ -1,0 +1,36 @@
+# /etc/containers/systemd/webfrontend.container
+
+[Unit]
+Description=Web Frontend Service
+After=apiservice.service
+Requires=apiservice.service
+PartOf=aspire.target
+
+[Container]
+Image=localhost/aspireapp1.web
+
+Network=aspire
+
+PublishPort=5070:8080
+
+Environment=OTEL_DOTNET_EXPERIMENTAL_OTLP_RETRY=in_memory
+Environment=ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
+Environment=HTTP_PORTS=8080
+
+Environment=APISERVICE_HTTP=http://apiservice:8080
+Environment=services__apiservice__http__0=http://apiservice:8080
+Environment=APISERVICE_HTTPS=https://apiservice:8080
+
+Environment=OTEL_EXPORTER_OTLP_ENDPOINT=http://env-dashboard:18889
+Environment=OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+Environment=ConnectionStrings__seq=http://seq:80
+
+ContainerName=webfrontend
+
+[Service]
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,0 +1,14 @@
+# /etc/systemd/system/aspire.target
+
+[Unit]
+Description=Aspire Stack
+
+Requires=seq.service
+Requires=rabbitmq.service
+Requires=apiservice.service
+Requires=webfrontend.service
+Requires=sql-probe.service
+Requires=rabbitconsumer.service
+Requires=webfrontend.service
+Requires=env-dashboard.service
+Requires=portainer.service

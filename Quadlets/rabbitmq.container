@@ -1,0 +1,24 @@
+# /etc/containers/systemd/rabbitmq.container
+
+[Unit]
+Description=RabbitMQ
+After=aspire-network.service
+Requires=aspire-network.service
+PartOf=aspire.target
+
+[Container]
+Image=docker.io/library/rabbitmq:4.2-management
+Network=aspire
+PublishPort=15672:15672
+ExposeHostPort=5672
+EnvironmentFile=/etc/containers/systemd/aspire.env
+Environment=RABBITMQ_DEFAULT_USER=admin
+Environment=RABBITMQ_DEFAULT_PASS=12345678
+ContainerName=rabbitmq
+
+[Service]
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

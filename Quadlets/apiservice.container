@@ -1,0 +1,40 @@
+# /etc/containers/systemd/apiservice.container
+
+[Unit]
+Description=API Service
+After=rabbitmq.service sql-probe.service seq.service
+Requires=rabbitmq.service sql-probe.service
+PartOf=aspire.target
+
+[Container]
+Image=localhost/aspireapp1.apiservice
+EnvironmentFile=/etc/containers/systemd/aspire.env
+
+Network=aspire
+
+PublishPort=5320:8080
+PublishPort=7196:8081
+
+Environment=HTTP_PORTS=8080
+
+Environment=SQL_PROBE_HTTP=http://sql-probe:8080
+Environment=services__sql-probe__http__0=http://sql-probe:8080
+
+Environment=ConnectionStrings__rabbitmq=amqp://admin:12345678@rabbitmq:5672
+
+Environment=RABBITMQ_HOST=rabbitmq
+Environment=RABBITMQ_PORT=5672
+
+Environment=OTEL_EXPORTER_OTLP_ENDPOINT=http://env-dashboard:18889
+Environment=OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+
+Environment=ConnectionStrings__seq=http://seq:80
+
+ContainerName=apiservice
+
+[Service]
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

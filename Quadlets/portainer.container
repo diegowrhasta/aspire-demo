@@ -1,0 +1,19 @@
+# /etc/containers/systemd/portainer.container
+
+[Unit]
+Description=Portainer
+PartOf=aspire.target
+
+[Container]
+Image=portainer/portainer-ce:latest
+PublishPort=9000:9000
+Volume=/run/podman/podman.sock:/var/run/docker.sock
+ContainerName=portainer
+
+[Service]
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
